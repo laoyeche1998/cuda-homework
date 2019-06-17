@@ -29,8 +29,7 @@ void sweepCPU(double* phi, const double *phiPrev, const double *source,
 } 
 
 // GPU kernel
-__global__ 
-void sweepGPU(double *phi, const double *phiPrev, const double *source, 
+__global__ void sweepGPU(double *phi, const double *phiPrev, const double *source, 
               double h2, int N)
 {
     //#error Add here the GPU version of the update routine (see sweepCPU above)
