@@ -111,7 +111,7 @@ int main()
 #else 
     const int blocksize = 16;
 #endif    
-    printf("block = %d\n",blocksize);
+    printf("blocksize = %d\n",blocksize);
   
     double *phi      = new double[N*N]; 
     double *phiPrev  = new double[N*N]; 
