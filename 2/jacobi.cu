@@ -106,7 +106,7 @@ int main()
     const double tolerance = 5e-4; // Stopping condition
     int i, j, index;
 
-    const int blocksize = 16;
+    const int blocksize = 32;
   
     double *phi      = new double[N*N]; 
     double *phiPrev  = new double[N*N]; 
