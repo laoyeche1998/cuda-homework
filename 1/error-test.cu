@@ -3,7 +3,7 @@
 #include "error_checks_1.h" // Macros CUDA_CHECK and CHECK_ERROR_MSG
 
 
-__global__ void vector_add(double *C, const double *A, const double *B, int N)
+__global__ void vector_add(double *C, const double *A, const double *B, int N,const double *hA)
 {
     // Add the kernel code
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -12,6 +12,11 @@ __global__ void vector_add(double *C, const double *A, const double *B, int N)
     if (idx < N) {
         C[idx] = A[idx] + B[idx];
     }
+
+    /* 第3小题 */
+    double dereference_host_mem = *(hA+1);  // dA[1]==1
+    printf("dereference_host_mem = %5.1f\n", dereference_host_mem);
+    
 }
 
 
@@ -39,7 +44,10 @@ int main(void)
     CUDA_CHECK( cudaMemcpy((void*)dB, (void*)hB, sizeof(double)*N, cudaMemcpyHostToDevice) );
     //#error Add the remaining memory allocations and copies
 
-    
+    /* 第2小题 
+    double dereference_dev_mem = *(dA+1);  // dA[1]==1
+    printf("dereference_dev_mem = %5.1f\n", dereference_dev_mem);
+    */
 
     // Note the maximum size of threads in a block
     int blockSize = ThreadsInBlock;
@@ -48,11 +56,10 @@ int main(void)
 
     //// Add the kernel call here
     //CUDA_CHECK( (vector_add<<<grid,threads>>>(dC,dA,dB,N)) );
-    vector_add<<<grid,threads>>>(dC,dA,dB,N);
+    vector_add<<<grid,threads>>>(dC,dA,dB,N,hA);
     //#error Add the CUDA kernel call
 
-    double dereference_dev_mem = *(dA+1);  // dA[1]==1
-    printf("dereference_dev_mem = %5.1f\n", dereference_dev_mem);
+
 
     // Here we add an explicit synchronization so that we catch errors
     // as early as possible. Don't do this in production code!
