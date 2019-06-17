@@ -39,8 +39,7 @@ int main(void)
     CUDA_CHECK( cudaMemcpy((void*)dB, (void*)hB, sizeof(double)*N, cudaMemcpyHostToDevice) );
     //#error Add the remaining memory allocations and copies
 
-    double dereference_dev_mem = *(dA+1);  // dA[1]==1
-    printf("dereference_dev_mem = %5.1f\n", dereference_dev_mem);
+    
 
     // Note the maximum size of threads in a block
     int blockSize = ThreadsInBlock;
@@ -52,6 +51,8 @@ int main(void)
     vector_add<<<grid,threads>>>(dC,dA,dB,N);
     //#error Add the CUDA kernel call
 
+    double dereference_dev_mem = *(dA+1);  // dA[1]==1
+    printf("dereference_dev_mem = %5.1f\n", dereference_dev_mem);
 
     // Here we add an explicit synchronization so that we catch errors
     // as early as possible. Don't do this in production code!
