@@ -33,7 +33,42 @@ __global__
 void sweepGPU(double *phi, const double *phiPrev, const double *source, 
               double h2, int N)
 {
-    #error Add here the GPU version of the update routine (see sweepCPU above)
+    //#error Add here the GPU version of the update routine (see sweepCPU above)
+    int threadId_2D = threadIdx.x + threadIdx.y*blockDim.x;
+    int blockId_2D = blockIdx.x + blockIdx.y*gridDim.x;
+    int index = threadId_2D + (blockDim.x*blockDim.y)*blockId_2D;
+    // cuda的thread，block都按照行优先排列.处于维度为(gDx,gDy)中，坐标为(x,y)的block,其blockID为y*gDx+x.
+    // 行优先，即同一行下一列的ID，要+1,所以是"+blockIdx.x"；同一列下一行的ID，要+Dim.x,所以是"blockIdx.y*gridDim.x"
+    // blockId和threadID再折算成全局的index，需要用blockID乘以一个block中thread的数量，再加上threadID
+
+    int i = index/N;
+    int j = index%N;
+    int i1, i2, i3, i4;
+    if ((j >= 1) && (j < N-1)) {
+        if ((i >= 1) && (i < N-1)) {
+            i1 = (i-1) +   j   * N;
+            i2 = (i+1) +   j   * N;
+            i3 =   i   + (j-1) * N;
+            i4 =   i   + (j+1) * N;
+            phi[index] = 0.25 * (phiPrev[i1] + phiPrev[i2] + 
+                                 phiPrev[i3] + phiPrev[i4] - 
+                                 h2 * source[index]);
+        } 
+    }
+    /*
+    0,1,2,---   ,n-1
+    n, ...      ,2n-1
+    2n, ...     ,3n-1
+    (n-2)n,...  ,(n-2)n-1
+    (n-1)n,---  ,(n-1)n-1
+    */
+    /*if(index<=(N-1) || index%N==0 || index%(N)==(N-1) || index>=(N-1)*N)
+        return;
+    else
+    {
+        
+    }*/
+
 }
 
 
@@ -154,9 +189,11 @@ int main()
     while (diff > tolerance && iterations < MAX_ITERATIONS) {
         // See above how the CPU update kernel is called
         // and implement similar calling sequence for the GPU code
-
+    
         //// Add routines here
-        #error Add GPU kernel calls here (see CPU version above)
+        sweepCPU<<<dimGrid,dimBlock>>>(phiPrev_d, phi_d, source_d, h * h, N);
+        sweepCPU<<<dimGrid,dimBlock>>>(phi_d, phiPrev_d, source_d, h * h, N);
+        //#error Add GPU kernel calls here (see CPU version above)
 
         iterations += 2;
         
@@ -170,15 +207,19 @@ int main()
     }
     
     //// Add here the routine to copy back the results
-    #error Copy back the results
-
+    CUDA_CHECK( cudaMemcpy(phi_cuda, phi_d, size, cudaMemcpyDeviceToHost) );
+    //#error Copy back the results
+    
     gettimeofday(&t2, NULL);
     printf("GPU Jacobi: %g seconds, %d iterations\n", 
            t2.tv_sec - t1.tv_sec + 
            (t2.tv_usec - t1.tv_usec) / 1.0e6, iterations);
 
     //// Add here the clean up code for all allocated CUDA resources
-    #error Add here the clean up code   
+    CUDA_CHECK( cudaFree(phi_d) );
+    CUDA_CHECK( cudaFree(phiPrev_d) );
+    CUDA_CHECK( cudaFree(source_d) );
+    //#error Add here the clean up code   
 
     if (COMPUTE_CPU_REFERENCE) {
         printf("Average difference is %g\n", compareArrays(phi, phi_cuda, N));

@@ -3,7 +3,7 @@
 #include "error_checks_1.h" // Macros CUDA_CHECK and CHECK_ERROR_MSG
 
 
-__global__ void vector_add(double *C, const double *A, const double *B, int N,const double *hA)
+__global__ void vector_add(double *C, const double *A, const double *B, int N /*,const double *hA*/ )
 {
     // Add the kernel code
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -13,10 +13,10 @@ __global__ void vector_add(double *C, const double *A, const double *B, int N,co
         C[idx] = A[idx] + B[idx];
     }
 
-    /* 第3小题 */
+    /* 第3小题 
     double dereference_host_mem = *(hA+1);  // dA[1]==1
     printf("dereference_host_mem = %5.1f\n", dereference_host_mem);
-    
+    */
 }
 
 
@@ -56,7 +56,7 @@ int main(void)
 
     //// Add the kernel call here
     //CUDA_CHECK( (vector_add<<<grid,threads>>>(dC,dA,dB,N)) );
-    vector_add<<<grid,threads>>>(dC,dA,dB,N,hA);
+    vector_add<<<grid,threads>>>(dC,dA,dB,N /*,hA*/);
     //#error Add the CUDA kernel call
 
 
