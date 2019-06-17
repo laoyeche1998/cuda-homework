@@ -18,7 +18,7 @@ __global__ void vector_add(double *C, const double *A, const double *B, int N)
 int main(void)
 {
     const int N = 20;
-    const int ThreadsInBlock = 1024;
+    const int ThreadsInBlock = 1025;
     double *dA, *dB, *dC;
     double hA[N], hB[N], hC[N];
   
