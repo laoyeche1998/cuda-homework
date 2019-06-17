@@ -40,7 +40,7 @@ int main(void)
     //#error Add the remaining memory allocations and copies
 
     double dereference_dev_mem = *(dA+1);  // dA[1]==1
-    cout << "dereference_dev_mem = " << dereference_dev_mem << endl;
+    printf("dereference_dev_mem = %5.1f\n", dereference_dev_mem);
 
     // Note the maximum size of threads in a block
     int blockSize = ThreadsInBlock;
