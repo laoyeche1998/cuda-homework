@@ -190,8 +190,8 @@ int main()
         // and implement similar calling sequence for the GPU code
     
         //// Add routines here
-        sweepCPU<<<dimGrid,dimBlock>>>(phiPrev_d, phi_d, source_d, h * h, N);
-        sweepCPU<<<dimGrid,dimBlock>>>(phi_d, phiPrev_d, source_d, h * h, N);
+        sweepGPU<<<dimGrid,dimBlock>>>(phiPrev_d, phi_d, source_d, h * h, N);
+        sweepGPU<<<dimGrid,dimBlock>>>(phi_d, phiPrev_d, source_d, h * h, N);
         //#error Add GPU kernel calls here (see CPU version above)
 
         iterations += 2;
