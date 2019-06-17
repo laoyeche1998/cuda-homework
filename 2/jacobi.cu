@@ -36,7 +36,7 @@ __global__ void sweepGPU(double *phi, const double *phiPrev, const double *sourc
     int threadId_2D = threadIdx.x + threadIdx.y*blockDim.x;
     int blockId_2D = blockIdx.x + blockIdx.y*gridDim.x;
     int index = threadId_2D + (blockDim.x*blockDim.y)*blockId_2D;
-    // cuda的thread，block都按照行优先排列.处于维度为(gDx,gDy)中，坐标为(x,y)的block,其blockID为y*gDx+x.
+    // cuda的thread，block都按照行优先排列，比如，一个block，它处于维度为(gDx,gDy)的grid中，坐标为(x,y),则其blockID为y*gDx+x.
     // 行优先，即同一行下一列的ID，要+1,所以是"+blockIdx.x"；同一列下一行的ID，要+Dim.x,所以是"blockIdx.y*gridDim.x"
     // blockId和threadID再折算成全局的index，需要用blockID乘以一个block中thread的数量，再加上threadID
 
