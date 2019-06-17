@@ -18,7 +18,7 @@ __global__ void vector_add(double *C, const double *A, const double *B, int N)
 int main(void)
 {
     const int N = 20;
-    const int ThreadsInBlock = 1025;
+    const int ThreadsInBlock = 1024;
     double *dA, *dB, *dC;
     double hA[N], hB[N], hC[N];
   
@@ -52,7 +52,7 @@ int main(void)
 
     // Here we add an explicit synchronization so that we catch errors
     // as early as possible. Don't do this in production code!
-    cudaDeviceSynchronize();
+    //cudaDeviceSynchronize();
     CHECK_ERROR_MSG("vector_add kernel");
 
     //// Copy back the results and free the device memory
