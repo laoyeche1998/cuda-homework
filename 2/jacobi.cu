@@ -108,6 +108,7 @@ int main()
     int i, j, index;
 
     const int blocksize = BLOCKSIZE;
+    printf("block = %d\n",blocksize);
   
     double *phi      = new double[N*N]; 
     double *phiPrev  = new double[N*N]; 
