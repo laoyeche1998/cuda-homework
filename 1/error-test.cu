@@ -39,6 +39,9 @@ int main(void)
     CUDA_CHECK( cudaMemcpy((void*)dB, (void*)hB, sizeof(double)*N, cudaMemcpyHostToDevice) );
     //#error Add the remaining memory allocations and copies
 
+    double dereference_dev_mem = *(dA+1);  // dA[1]==1
+    cout << "dereference_dev_mem = " << dereference_dev_mem << endl;
+
     // Note the maximum size of threads in a block
     int blockSize = ThreadsInBlock;
     int numBlocks = (N + blockSize - 1) / blockSize;
@@ -52,7 +55,7 @@ int main(void)
 
     // Here we add an explicit synchronization so that we catch errors
     // as early as possible. Don't do this in production code!
-    //cudaDeviceSynchronize();
+    cudaDeviceSynchronize();
     CHECK_ERROR_MSG("vector_add kernel");
 
     //// Copy back the results and free the device memory
