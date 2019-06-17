@@ -6,7 +6,6 @@
 // Change this to 0 if CPU reference result is not needed
 #define COMPUTE_CPU_REFERENCE 1
 #define MAX_ITERATIONS 3000
-#define BLOCKSIZE 16
 
 // CPU kernel
 void sweepCPU(double* phi, const double *phiPrev, const double *source, 
@@ -107,7 +106,11 @@ int main()
     const double tolerance = 5e-4; // Stopping condition
     int i, j, index;
 
+#ifdef BLOCKSIZE
     const int blocksize = BLOCKSIZE;
+#else 
+    const int blocksize = 16;
+#endif    
     printf("block = %d\n",blocksize);
   
     double *phi      = new double[N*N]; 
