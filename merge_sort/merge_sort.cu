@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 
-#define ARRAY_LEN  128
+#define ARRAY_LEN  1024
 void my_swap(int &a, int &b)
 { 
     int temp = a; 
@@ -92,14 +92,14 @@ void cpu_merge_sort(int arr[], int len) {
 int main(void)
 {
     const int N = ARRAY_LEN;
-    const int ThreadsInBlock = 64;
+    const int ThreadsInBlock = 512;
     int *dA, *dB;
     int hA[N], hB[N], hC[N];
     timeval t1, t2; // Structs for timing   
 
 
     generate_array(hA);
-    for(int i=0;i<256;i++)
+    for(int i=0;i<min(ARRAY_LEN,128);i++)
     {
         printf("hA[%d]=%d  hC[%d]=%d\n",i,hA[i],i,hC[i]);
     }
@@ -151,7 +151,7 @@ int main(void)
     }
     printf("wrong count %d\n",wrong_count);
 
-    for(int i=0;i<256;i++)
+    for(int i=0;i<min(ARRAY_LEN,128);i++)
     {
         printf("hA[%d]=%d  hC[%d]=%d\n",i,hA[i],i,hC[i]);
     }
