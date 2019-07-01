@@ -134,7 +134,17 @@ int main(void)
     cpu_merge_sort(hA,N);
     gettimeofday(&t2, NULL);
     printf("CPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
-
+    
+    int wrong_count=0;
+    for(int i=0;i<N;i++)
+    {
+        if(hA[i]!=hC[i])
+        {
+            count++;
+            printf("wrong at i=[%d]\n",i);
+        }
+    }
+    printf("wrong count %d\n",wrong_count);
 
     CUDA_CHECK(cudaFree(dA));
     CUDA_CHECK(cudaFree(dB));
