@@ -46,10 +46,19 @@ __global__ void GPU_merge(int *a, int *b, int seg, const int array_len)
         b[k++] = a[start1++];  // 如果序列1非空，那么序列2空，所以把序列1按顺序排到结果序列
     while (start2 < end2)
         b[k++] = a[start2++];  // 如果序列2非空，那么序列1空，所以把序列2按顺序排到结果序列
-    // 归并得到了结果序列中的有序序列,[low,high)
+    // 归并得到了结果序列b中的有序序列,[low,high)
 }
 
-
+void CPU_merge(int start1,int end1, int start2,int end2,int k,int * a, int * b)
+{
+    while (start1 < end1 && start2 < end2)  // 两个序列都还没全部被归并
+        b[k++] = a[start1] < a[start2] ? a[start1++] : a[start2++];  // 小的排前面
+    while (start1 < end1)
+        b[k++] = a[start1++];  // 如果序列1非空，那么序列2空，所以把序列1按顺序排到结果序列
+    while (start2 < end2)
+        b[k++] = a[start2++];  // 如果序列2非空，那么序列1空，所以把序列2按顺序排到结果序列
+// 归并得到了结果序列b中的有序序列,b[low,high)
+}
 
 
 void CPU_merge_sort(int arr[], int len) {
@@ -64,13 +73,7 @@ void CPU_merge_sort(int arr[], int len) {
             int k = low;  //  结果序列的索引值
             int start1 = low, end1 = mid;  // 序列1 [low,mid),mid不属于序列1，是不能取的，
             int start2 = mid, end2 = high;  // 序列2 [mid,high),high不属于序列2，是不能取的，
-            while (start1 < end1 && start2 < end2)  // 两个序列都还没全部被归并
-                b[k++] = a[start1] < a[start2] ? a[start1++] : a[start2++];  // 小的排前面
-            while (start1 < end1)
-                b[k++] = a[start1++];  // 如果序列1非空，那么序列2空，所以把序列1按顺序排到结果序列
-            while (start2 < end2)
-                b[k++] = a[start2++];  // 如果序列2非空，那么序列1空，所以把序列2按顺序排到结果序列
-            // 归并得到了结果序列中的有序序列,[low,high)
+            CPU_merge(start1,end1,start2,end2,k,a,b);
         }
         swap(a,b);  // 交换a,b，使得a指向本次merge的结果，b则作为存放下一次merge的结果的目的地址
     }
@@ -113,7 +116,7 @@ int main(void)
     int threads = 1; // 1个block中的线程数
     int blocks = (N+threads-1)/threads; // block的数量
     int seg = 1;
-    while (seg < N) //每个有序子序列的长度seg从1开始增长，到大于等于len时，代表整个序列有序
+    while (seg < ((N+1)/2)) //每个有序子序列的长度seg从1开始增长，到大于等于len时，代表整个序列有序
     { 
         GPU_merge<<<blocks, threads>>>(dA, dB, seg, N);
         swap(dA,dB);  // 交换dA,dB，使得dA指向本次merge的结果，dB则将作为存放下一次merge的结果的目的地址
@@ -121,8 +124,20 @@ int main(void)
         seg *= 2;
     }
     CUDA_CHECK(cudaDeviceSynchronize());
-    CUDA_CHECK(cudaMemcpy((void*)GPU_ans, (void*)dA, N * sizeof(int), cudaMemcpyDeviceToHost));
-    
+    int GPU_last[N];
+    CUDA_CHECK(cudaMemcpy((void*)GPU_last, (void*)dA, N * sizeof(int), cudaMemcpyDeviceToHost));
+    {
+        int low = idx*2*seg; // 每个线程负责两个子序列，每个子序列的长度是2*seg
+        int mid = min(low + seg, array_len);
+        int high = min(low + seg * 2, array_len);
+        // 最后子序列的长度可能不足seg，导致low+seg或者low+2*seg超出整个序列的长度
+        //  所以要向下取整
+        int k = low;  //  结果序列的索引值
+        int start1 = low, end1 = mid;  // 序列1 [low,mid),mid不属于序列1，是不能取的，
+        int start2 = mid, end2 = high;  // 序列2 [mid,high),high不属于序列2，是不能取的，
+        CPU_merge(start1,end1,start2,end2,k,GPU_last,GPU_ans);
+    }
+
     gettimeofday(&t2, NULL);  // 结束计时
     printf("GPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
     //*****************************************
