@@ -110,7 +110,7 @@ int main(void)
     //***********GPU版本的merge sort************
     //*****************************************
     gettimeofday(&t1, NULL); // 开始计时
-    int threads = 16;
+    int threads = 1;
     //int blocks = (N+1) / 2;
     int blocks = (N+threads-1)/threads;
     int seg = 1;
