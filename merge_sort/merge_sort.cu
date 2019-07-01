@@ -32,27 +32,6 @@ void generate_array(int * ordered_arr,int * unordered_arr)
 __global__ void GPU_merge(int *a, int *b, int seg, const int array_len)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    // [index1,end1][index2,end2]
-    /*
-    int sortedsize = seg;
-    int index1 = idx * 2 * sortedsize; 
-    int end1 = index1 + sortedsize;
-    int index2 = end1;
-    int end2 = index2 + sortedsize;
-    int tempIndex = idx * 2 * sortedsize;
-    while ((index1 != end1) || (index2 != end2))
-    {
-        if ((index1 == end1) && (index2 < end2))
-            temp[tempIndex++] = a[index2++];
-        else if ((index2 == end2) && (index1 < end1))
-            temp[tempIndex++] = a[index1++];
-        else if (a[index1] < a[index2])
-            temp[tempIndex++] = a[index1++];
-        else
-            temp[tempIndex++] = a[index2++];
-    }
-    */
-   // 有序的子序列的长度从1开始增长，到大于等于len时，代表整个序列有序
     // 一个线程合并两个有序子序列
     int low = idx*2*seg; // 每个线程负责两个子序列，每个子序列的长度是2*seg
     int mid = min(low + seg, array_len);
