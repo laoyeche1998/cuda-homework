@@ -55,8 +55,8 @@ __global__ void GPU_merge(int *a, int *b, int seg, const int array_len)
    // 有序的子序列的长度从1开始增长，到大于等于len时，代表整个序列有序
     // 一个线程合并两个有序子序列
     int low = idx*2*seg; // 每个线程负责两个子序列，每个子序列的长度是2*seg
-    int mid = min(low + seg, arrry_len)
-    int high = min(low + seg * 2, arrry_len);
+    int mid = min(low + seg, array_len)
+    int high = min(low + seg * 2, array_len);
     // 最后子序列的长度可能不足seg，导致low+seg或者low+2*seg超出整个序列的长度
     //  所以要向下取整
     int k = low;  //  结果序列的索引值
