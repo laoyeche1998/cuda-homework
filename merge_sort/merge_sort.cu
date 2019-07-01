@@ -92,7 +92,7 @@ void cpu_merge_sort(int arr[], int len) {
 int main(void)
 {
     const int N = ARRAY_LEN;
-    const int ThreadsInBlock = 1024;
+    const int ThreadsInBlock = 64;
     int *dA, *dB;
     int hA[N], hB[N], hC[N];
     timeval t1, t2; // Structs for timing   
@@ -115,12 +115,12 @@ int main(void)
     while (blocks > 0)
     {
         gpu_merge<<<grid, threads>>>(dA, dB, sortedsize);
-        CUDA_CHECK(cudaMemcpy(dA, dB, N * sizeof(int), cudaMemcpyDeviceToDevice));
+        CUDA_CHECK(cudaMemcpy((void*)dA, (void*)dB, N * sizeof(int), cudaMemcpyDeviceToDevice));
         blocks /= 2;
         sortedsize *= 2;
     }
     cudaDeviceSynchronize();
-     CUDA_CHECK(cudaMemcpy(hC, dA, N * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy((void*)hC, (void*)dA, N * sizeof(int), cudaMemcpyDeviceToHost));
     
     gettimeofday(&t2, NULL);
     printf("GPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
