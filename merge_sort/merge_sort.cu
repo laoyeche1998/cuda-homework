@@ -110,9 +110,8 @@ int main(void)
     //***********GPU版本的merge sort************
     //*****************************************
     gettimeofday(&t1, NULL); // 开始计时
-    int threads = 1;
-    //int blocks = (N+1) / 2;
-    int blocks = (N+threads-1)/threads;
+    int threads = 1; // 1个block中的线程数
+    int blocks = (N+threads-1)/threads; // block的数量
     int seg = 1;
     while (seg < N) //每个有序子序列的长度seg从1开始增长，到大于等于len时，代表整个序列有序
     { 
