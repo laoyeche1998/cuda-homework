@@ -112,13 +112,13 @@ int main(void)
     //***********GPU版本的merge sort************
     //*****************************************
     gettimeofday(&t1, NULL); // 开始计时
-    int blocks = N / 2;
+    int blocks = (N+1) / 2;
     int seg = 1;
     while (seg < N) //每个有序子序列的长度seg从1开始增长，到大于等于len时，代表整个序列有序
     { 
         GPU_merge<<<blocks, 1>>>(dA, dB, seg, N);
         swap(dA,dB);  // 交换dA,dB，使得dA指向本次merge的结果，dB则将作为存放下一次merge的结果的目的地址
-        blocks /= 2; // 每次归并后，有序子序列的长度*2，所需的进程数/2
+        blocks = (blocks+1)/2; // 每次归并后，有序子序列的长度*2，所需的进程数/2
         seg *= 2;
     }
     CUDA_CHECK(cudaDeviceSynchronize());
