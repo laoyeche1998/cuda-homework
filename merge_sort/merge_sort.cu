@@ -127,8 +127,7 @@ int main(void)
 
     //// Copy back the results and free the device memory
 
-    CUDA_CHECK(cudaFree(dA));
-    CUDA_CHECK(cudaFree(dB));
+    
     //#error Copy back the results and free the allocated memory
 
     gettimeofday(&t1, NULL);
@@ -136,5 +135,8 @@ int main(void)
     gettimeofday(&t2, NULL);
     printf("CPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
 
+
+    CUDA_CHECK(cudaFree(dA));
+    CUDA_CHECK(cudaFree(dB));
     return 0;
 }
