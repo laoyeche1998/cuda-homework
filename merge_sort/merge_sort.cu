@@ -16,7 +16,7 @@ void generate_array(int * ordered_arr,int * unordered_arr)
         unordered_arr[i] = i;  // 无序数组
     }   
     for(int i = 0; i < ARRAY_LEN; i++) // 通过交换来打乱顺序
-        swap(unordered_arr[rand()%ARRAY_LEN],unordered_arr[i]);
+        std::swap(unordered_arr[rand()%ARRAY_LEN],unordered_arr[i]);
 
 }
 
@@ -93,9 +93,10 @@ int main(void)
     int N = ARRAY_LEN;  // 数组长度
     printf("enter array length:\n");
     scanf("%d",&N);
-    const int ThreadsInBlock = 512;
+    //const int ThreadsInBlock = 512;
     int *dA, *dB;
-    int ordered_arr[N], unordered_arr[N], GPU_ans[N]; // ordered_arr用来存放原始的有序数组，hB用来存储打乱顺序的数组
+    int ordered_arr[N], unordered_arr[N], GPU_ans[N]; 
+    // ordered_arr用来存放原始的有序数组，unordered_arr用来存储打乱顺序的数组
     timeval t1, t2; // 用于计时
 
 
