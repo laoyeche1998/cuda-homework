@@ -7,6 +7,12 @@
 
 #define ARRAY_LEN  4096
 
+void swap(int &a, int &b)
+{
+    int temp = a;
+    a = b;
+    b = temp;
+}
 
 void generate_array(int * ordered_arr,int * unordered_arr)
 {
@@ -16,7 +22,7 @@ void generate_array(int * ordered_arr,int * unordered_arr)
         unordered_arr[i] = i;  // 无序数组
     }   
     for(int i = 0; i < ARRAY_LEN; i++) // 通过交换来打乱顺序
-        std::swap(unordered_arr[rand()%ARRAY_LEN],unordered_arr[i]);
+        swap(unordered_arr[rand()%ARRAY_LEN],unordered_arr[i]);
 
 }
 
