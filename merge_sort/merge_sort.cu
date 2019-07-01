@@ -99,9 +99,9 @@ int main(void)
 
 
     generate_array(hA);
-    for(int i=0;i<min(ARRAY_LEN,128);i++)
+    for(int i=0;i<min(ARRAY_LEN,32);i++)
     {
-        printf("hA[%d]=%d  hC[%d]=%d\n",i,hA[i],i,hC[i]);
+        printf("hA[%d]=%d\n",i,hA[i],i);
     }
     CUDA_CHECK(cudaMemcpy((void *)hB, (void *)hA, sizeof(int) * N, cudaMemcpyHostToHost));
     CUDA_CHECK(cudaMalloc((void **)&dA, sizeof(int) * N));
@@ -123,7 +123,7 @@ int main(void)
         blocks /= 2;
         sortedsize *= 2;
     }
-    CUDA_CHECK(cudaDeviceSynchronize());
+    //CUDA_CHECK(cudaDeviceSynchronize());
     CUDA_CHECK(cudaMemcpy((void*)hC, (void*)dA, N * sizeof(int), cudaMemcpyDeviceToHost));
 
     
@@ -147,11 +147,12 @@ int main(void)
         {
             wrong_count++;
             printf("wrong at i=[%d]\n",i);
+            if(wrong_count>=10) break;
         }
     }
     printf("wrong count %d\n",wrong_count);
 
-    for(int i=0;i<min(ARRAY_LEN,128);i++)
+    for(int i=0;i<min(ARRAY_LEN,32);i++)
     {
         printf("hA[%d]=%d  hC[%d]=%d\n",i,hA[i],i,hC[i]);
     }
