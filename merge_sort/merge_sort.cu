@@ -127,9 +127,9 @@ int main(void)
     int GPU_last[N];
     CUDA_CHECK(cudaMemcpy((void*)GPU_last, (void*)dA, N * sizeof(int), cudaMemcpyDeviceToHost));
     {
-        int low = idx*2*seg; // 每个线程负责两个子序列，每个子序列的长度是2*seg
-        int mid = min(low + seg, array_len);
-        int high = min(low + seg * 2, array_len);
+        int low = 0; // 每个线程负责两个子序列，每个子序列的长度是2*seg
+        int mid = min(low + seg, N);
+        int high = min(low + seg * 2, N);
         // 最后子序列的长度可能不足seg，导致low+seg或者low+2*seg超出整个序列的长度
         //  所以要向下取整
         int k = low;  //  结果序列的索引值
