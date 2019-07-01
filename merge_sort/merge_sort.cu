@@ -58,9 +58,7 @@ __global__ void gpu_merge(int *a, int *temp, int sortedsize)
 
 
 
-int min(int x, int y) {
-    return x < y ? x : y;
-}
+
 void cpu_merge_sort(int arr[], int len) {
     int *a = arr;
     int *b = (int *) malloc(len * sizeof(int));
