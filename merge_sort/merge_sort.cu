@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 
-#define ARRAY_LEN  1024
+#define ARRAY_LEN  256
 void my_swap(int &a, int &b)
 { 
     int temp = a; 
