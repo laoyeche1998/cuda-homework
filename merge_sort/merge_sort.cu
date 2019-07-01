@@ -119,8 +119,9 @@ int main(void)
         blocks /= 2;
         sortedsize *= 2;
     }
-    cudaDeviceSynchronize();
+    CUDA_CHECK(cudaDeviceSynchronize());
     CUDA_CHECK(cudaMemcpy((void*)hC, (void*)dA, N * sizeof(int), cudaMemcpyDeviceToHost));
+
     
     gettimeofday(&t2, NULL);
     printf("GPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
