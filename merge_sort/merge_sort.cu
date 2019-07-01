@@ -6,24 +6,22 @@
 
 
 #define ARRAY_LEN  4096
-void my_swap(int &a, int &b)
-{ 
-    int temp = a; 
-    a = b; 
-    b = temp; 
-}
 
 
-void generate_array(int * src_arr)
+void generate_array(int * ordered_arr,int * unordered_arr)
 {
-    for(int i = 0; i < ARRAY_LEN; i++)    
-        src_arr[i] = i;
-    for(int i = 0; i < ARRAY_LEN; i++)
-        my_swap(src_arr[rand()%ARRAY_LEN], src_arr[i]);
+    for(int i = 0; i < ARRAY_LEN; i++) // 元素不重复
+    {
+        ordered_arr[i] = i; // 有序数组
+        unordered_arr[i] = i;  // 无序数组
+    }   
+    for(int i = 0; i < ARRAY_LEN; i++) // 通过交换来打乱顺序
+        swap(unordered_arr[rand()%ARRAY_LEN],unordered_arr[i]);
+
 }
 
 
-__global__ void vector_add(double *C, const double *A, const double *B, int N /*,const double *hA*/)
+__global__ void vector_add(double *C, const double *A, const double *B, int N)
 {
     // Add the kernel code
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -33,7 +31,7 @@ __global__ void vector_add(double *C, const double *A, const double *B, int N /*
     }
 }
 
-__global__ void gpu_merge(int *a, int *temp, int sortedsize)
+__global__ void GPU_merge(int *a, int *temp, int sortedsize)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     // [index1,end1][index2,end2]
@@ -58,7 +56,7 @@ __global__ void gpu_merge(int *a, int *temp, int sortedsize)
 
 
 
-void cpu_merge_sort(int arr[], int len) {
+void CPU_merge_sort(int arr[], int len) {
     int *a = arr;
     int *b = (int *) malloc(len * sizeof(int));
     int seg, start;
@@ -91,73 +89,84 @@ void cpu_merge_sort(int arr[], int len) {
 
 int main(void)
 {
-    const int N = ARRAY_LEN;
+
+    int N = ARRAY_LEN;  // 数组长度
+    printf("enter array length:\n");
+    scanf("%d",&N);
     const int ThreadsInBlock = 512;
     int *dA, *dB;
-    int hA[N], hB[N], hC[N];
-    timeval t1, t2; // Structs for timing   
+    int ordered_arr[N], unordered_arr[N], GPU_ans[N]; // ordered_arr用来存放原始的有序数组，hB用来存储打乱顺序的数组
+    timeval t1, t2; // 用于计时
 
 
-    generate_array(hA);
-    for(int i=0;i<min(ARRAY_LEN,32);i++)
+    generate_array(ordered_arr,unordered_arr); // 生成打乱顺序的数组
+    /* 检查生成的数组
+    for(int i=0;i<min(N,32);i++)
     {
-        printf("hA[%d]=%d\n",i,hA[i]);
+        printf("unordered_arr[%d]=%d\n",i,unordered_arr[i]);
     }
-    CUDA_CHECK(cudaMemcpy((void *)hB, (void *)hA, sizeof(int) * N, cudaMemcpyHostToHost));
+    */
     CUDA_CHECK(cudaMalloc((void **)&dA, sizeof(int) * N));
     CUDA_CHECK(cudaMalloc((void **)&dB, sizeof(int) * N));
-    CUDA_CHECK(cudaMemcpy((void *)dA, (void *)hA, sizeof(int) * N, cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy((void *)dB, (void *)hB, sizeof(int) * N, cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy((void *)dA, (void *)unordered_arr, sizeof(int) * N, cudaMemcpyHostToDevice));
 
-    // int blockSize = ThreadsInBlock;
-    // int numBlocks = (N + blockSize - 1) / blockSize;
-    // dim3 grid(numBlocks), threads(blockSize);
-
+    //*****************************************
+    //***********GPU版本的merge sort************
+    //*****************************************
     gettimeofday(&t1, NULL);
-    int blocks = ARRAY_LEN / 2;
+    int blocks = N / 2;
     int sortedsize = 1;
-    while (sortedsize < ARRAY_LEN/2)
+    while (sortedsize < N)
     {
-        gpu_merge<<<blocks, 1>>>(dA, dB, sortedsize);
+        GPU_merge<<<blocks, 1>>>(dA, dB, sortedsize);
         CUDA_CHECK(cudaMemcpy((void*)dA, (void*)dB, N * sizeof(int), cudaMemcpyDeviceToDevice));
         blocks /= 2;
         sortedsize *= 2;
     }
-    //CUDA_CHECK(cudaDeviceSynchronize());
-    CUDA_CHECK(cudaMemcpy((void*)hC, (void*)dA, N * sizeof(int), cudaMemcpyDeviceToHost));
-    cpu_merge_sort(hC,N);
+    CUDA_CHECK(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaMemcpy((void*)GPU_ans, (void*)dA, N * sizeof(int), cudaMemcpyDeviceToHost));
     
     gettimeofday(&t2, NULL);
     printf("GPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
+    //*****************************************
+    //*****************************************
 
-    //// Copy back the results and free the device memory
 
-    
-    //#error Copy back the results and free the allocated memory
-
+    //*****************************************
+    //***********CPU版本的merge sort************
+    //*****************************************
     gettimeofday(&t1, NULL);
-    cpu_merge_sort(hA,N);
+    CPU_merge_sort(unordered_arr,N);
     gettimeofday(&t2, NULL);
     printf("CPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
+    //*****************************************
+    //*****************************************
     
-    int wrong_count=0;
+    // 检查排序是否正确
+    int GPU_wrong_count=0,CPU_wrong_count=0;
     for(int i=0;i<N;i++)
     {
-        if(hA[i]!=hC[i])
+        if(unordered_arr[i]!=ordered_arr[i])
         {
-            wrong_count++;
-            printf("wrong at i=[%d]\n",i);
-            if(wrong_count>=10) break;
+            CPU_wrong_count++;
+            printf("CPU wrong at i[%d]=%d \n",i,unordered_arr[i]);
+        }
+        if(GPU_ans[i]!=ordered_arr[i])
+        {
+            GPU_wrong_count++;
+            printf("GPU wrong at i[%d]=%d \n",i,GPU_ans[i]);
         }
     }
-    printf("wrong count %d\n",wrong_count);
+    printf("CPU wrong count = %d\n",CPU_wrong_count);
+    printf("GPU wrong count = %d\n",GPU_wrong_count);
 
-    for(int i=0;i<min(ARRAY_LEN,32);i++)
+    /*  检查排序结果
+    for(int i=0;i<min(N,32);i++)
     {
-        printf("hA[%d]=%d  hC[%d]=%d\n",i,hA[i],i,hC[i]);
-    }
+        printf("unordered_arr[%d]=%d  GPU_ans[%d]=%d\n",i,unordered_arr[i],i,GPU_ans[i]);
+    }*/
 
-
+    // 释放device的内存
     CUDA_CHECK(cudaFree(dA));
     CUDA_CHECK(cudaFree(dB));
     return 0;
