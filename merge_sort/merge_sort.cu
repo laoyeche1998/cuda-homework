@@ -109,16 +109,16 @@ int main(void)
     CUDA_CHECK(cudaMemcpy((void *)dA, (void *)hA, sizeof(int) * N, cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy((void *)dB, (void *)hB, sizeof(int) * N, cudaMemcpyHostToDevice));
 
-    int blockSize = ThreadsInBlock;
-    int numBlocks = (N + blockSize - 1) / blockSize;
-    dim3 grid(numBlocks), threads(blockSize);
+    // int blockSize = ThreadsInBlock;
+    // int numBlocks = (N + blockSize - 1) / blockSize;
+    // dim3 grid(numBlocks), threads(blockSize);
 
     gettimeofday(&t1, NULL);
-    int blocks = numBlocks / 2;
-    int sortedsize = N;
+    int blocks = N / 2;
+    int sortedsize = 1;
     while (blocks > 0)
     {
-        gpu_merge<<<grid, threads>>>(dA, dB, sortedsize);
+        gpu_merge<<<blocks, 1>>>(dA, dB, sortedsize);
         CUDA_CHECK(cudaMemcpy((void*)dA, (void*)dB, N * sizeof(int), cudaMemcpyDeviceToDevice));
         blocks /= 2;
         sortedsize *= 2;
