@@ -13,9 +13,8 @@ void my_swap(int &a, int &b)
     b = temp; 
 }
 
-int src_arr[ARRAY_LEN];
 
-void generate_array(int * const src_arr)
+void generate_array(int * src_arr)
 {
     for(int i = 0; i < ARRAY_LEN; i++)    
         src_arr[i] = i;
@@ -120,8 +119,9 @@ int main(void)
         blocks /= 2;
         sortedsize *= 2;
     }
-    cudaMemcpy(hC, dA, N * sizeof(int), cudaMemcpyDeviceToHost);
     cudaDeviceSynchronize();
+     CUDA_CHECK(cudaMemcpy(hC, dA, N * sizeof(int), cudaMemcpyDeviceToHost));
+    
     gettimeofday(&t2, NULL);
     printf("GPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
 
