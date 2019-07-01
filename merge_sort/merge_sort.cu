@@ -5,7 +5,7 @@
 #include <sys/time.h>
 
 
-#define ARRAY_LEN  2048
+#define ARRAY_LEN  128
 void my_swap(int &a, int &b)
 { 
     int temp = a; 
@@ -99,6 +99,10 @@ int main(void)
 
 
     generate_array(hA);
+    for(int i=0;i<256;i++)
+    {
+        printf("hA[%d]=%d  hC[%d]=%d\n",i,hA[i],i,hC[i]);
+    }
     CUDA_CHECK(cudaMemcpy((void *)hB, (void *)hA, sizeof(int) * N, cudaMemcpyHostToHost));
     CUDA_CHECK(cudaMalloc((void **)&dA, sizeof(int) * N));
     CUDA_CHECK(cudaMalloc((void **)&dB, sizeof(int) * N));
