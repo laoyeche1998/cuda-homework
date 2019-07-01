@@ -101,7 +101,7 @@ int main(void)
     generate_array(hA);
     for(int i=0;i<min(ARRAY_LEN,32);i++)
     {
-        printf("hA[%d]=%d\n",i,hA[i],i);
+        printf("hA[%d]=%d\n",i,hA[i]);
     }
     CUDA_CHECK(cudaMemcpy((void *)hB, (void *)hA, sizeof(int) * N, cudaMemcpyHostToHost));
     CUDA_CHECK(cudaMalloc((void **)&dA, sizeof(int) * N));
