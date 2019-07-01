@@ -140,11 +140,17 @@ int main(void)
     {
         if(hA[i]!=hC[i])
         {
-            count++;
+            wrong_count++;
             printf("wrong at i=[%d]\n",i);
         }
     }
     printf("wrong count %d\n",wrong_count);
+
+    for(int i=0;i<256;i++)
+    {
+        printf("hA[%d]=%d  hC[%d]=%d\n",i,hA[i],i,hC[i]);
+    }
+
 
     CUDA_CHECK(cudaFree(dA));
     CUDA_CHECK(cudaFree(dB));

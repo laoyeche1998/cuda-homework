@@ -3,6 +3,7 @@
     "files.associations": {
         "*.cu": "cpp",
         "xlocale": "cpp",
-        "xlocnum": "cpp"
+        "xlocnum": "cpp",
+        "xutility": "cpp"
     }
 }
