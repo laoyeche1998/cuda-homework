@@ -114,9 +114,9 @@ int main(void)
     // dim3 grid(numBlocks), threads(blockSize);
 
     gettimeofday(&t1, NULL);
-    int blocks = N / 2;
+    int blocks = ARRAY_LEN / 2;
     int sortedsize = 1;
-    while (blocks > 0)
+    while (sortedsize < ARRAY_LEN/2)
     {
         gpu_merge<<<blocks, 1>>>(dA, dB, sortedsize);
         CUDA_CHECK(cudaMemcpy((void*)dA, (void*)dB, N * sizeof(int), cudaMemcpyDeviceToDevice));
@@ -125,7 +125,7 @@ int main(void)
     }
     //CUDA_CHECK(cudaDeviceSynchronize());
     CUDA_CHECK(cudaMemcpy((void*)hC, (void*)dA, N * sizeof(int), cudaMemcpyDeviceToHost));
-
+    cpu_merge_sort(hC,N);
     
     gettimeofday(&t2, NULL);
     printf("GPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
