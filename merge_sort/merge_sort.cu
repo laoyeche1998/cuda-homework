@@ -5,7 +5,6 @@
 #include <sys/time.h>
 
 
-#define ARRAY_LEN  4096
 
 template<typename T>
 void swap(T &a, T &b)
@@ -15,7 +14,7 @@ void swap(T &a, T &b)
     b = temp;
 }
 
-void generate_array(int * ordered_arr,int * unordered_arr)
+void generate_array(int * ordered_arr,int * unordered_arr, int ARRAY_LEN)
 {
     for(int i = 0; i < ARRAY_LEN; i++) // 元素不重复
     {
@@ -87,8 +86,7 @@ void CPU_merge_sort(int arr[], int len) {
 
 int main(void)
 {
-
-    int N = ARRAY_LEN;  // 数组长度
+    int N = 0; // 数组长度
     printf("enter array length:\n");
     scanf("%d",&N);
     int *dA, *dB;
@@ -97,7 +95,7 @@ int main(void)
     timeval t1, t2; // 用于计时
 
 
-    generate_array(ordered_arr,unordered_arr); // 生成打乱顺序的数组
+    generate_array(ordered_arr,unordered_arr,N); // 生成打乱顺序的数组
     /* 检查生成的数组
     for(int i=0;i<min(N,32);i++)
     {
