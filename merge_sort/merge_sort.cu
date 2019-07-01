@@ -94,12 +94,12 @@ int main(void)
 {
     const int N = ARRAY_LEN;
     const int ThreadsInBlock = 1024;
-    int *dA, *dB, *dC;
+    int *dA, *dB;
     int hA[N], hB[N], hC[N];
     timeval t1, t2; // Structs for timing   
 
 
-    generate_array(src_arr);
+    generate_array(hA);
     CUDA_CHECK(cudaMemcpy((void *)hB, (void *)hA, sizeof(int) * N, cudaMemcpyHostToHost));
     CUDA_CHECK(cudaMalloc((void **)&dA, sizeof(int) * N));
     CUDA_CHECK(cudaMalloc((void **)&dB, sizeof(int) * N));
@@ -132,9 +132,9 @@ int main(void)
     //#error Copy back the results and free the allocated memory
 
     gettimeofday(&t1, NULL);
-    cpu_merge_sort(src_arr,N);
+    cpu_merge_sort(hA,N);
     gettimeofday(&t2, NULL);
-    printf("GPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
+    printf("CPU merge sort: %g seconds\n", t2.tv_sec - t1.tv_sec + (t2.tv_usec - t1.tv_usec) / 1.0e6);
 
     return 0;
 }
